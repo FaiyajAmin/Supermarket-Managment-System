@@ -1,0 +1,890 @@
+#include<bits/stdc++.h>
+
+using namespace std;
+
+
+void playIntro()
+{
+    cout << endl;
+    cout << "                    Welcome to Supermarket Management System" << endl;
+    cout << "                                  developed by " << endl;
+    cout << "                                Faiyaj Bin Amin " << endl;
+    cout << "                                 KUET CSE 2K17 " << endl;
+    cout << endl;
+    cout << endl;
+}
+
+
+class Stock
+{
+    int stockIts[100];
+
+public:
+    void checkStock();
+    void RefillStock();
+    void addNewItemsToStock();
+
+    friend void decreaseStock(double productIDs, double value);
+    friend double findProduct(double productID);
+    friend double findCost(double productID);
+};
+
+void decreaseStock(double productIDs, double value)
+{
+
+    // File pointer
+    fstream fin, fout;
+
+    // Open an existing record
+    fin.open("stockitems.csv", ios::in);
+
+    // Create a new file to store updated data
+    fout.open("stockitemsnew.csv", ios::out);
+
+    int sel;
+    int index;
+//    double value;
+    string line, word;
+    vector<string> row;
+
+    int cnt=0;
+
+    // Traverse the file
+    while (!fin.eof())
+    {
+
+        row.clear();
+
+        getline(fin, line);
+
+//        cout << "line " << line << endl;
+        stringstream s(line);
+
+        while (getline(s, word, ','))
+        {
+            row.push_back(word);
+        }
+
+
+//             cout << "roll 0 " << row[0] << endl;
+        double lol = atof(row[0].c_str()); ///*c_str is needed to convert string to const char*
+
+        int row_size = row.size();
+
+
+
+        if (lol == productIDs)
+        {
+            cnt = 1;
+            stringstream convert;
+
+            double ext =  atof(row[2].c_str());
+            value = ext - value; /// new line
+
+            if(value<=0)
+                cout << "The product is now Out of Stock" << endl;
+
+
+            // sending a number as a stream into output string
+            convert << value;
+
+            // the str() converts number into string
+            row[2] = convert.str();
+
+            if (!fin.eof())
+            {
+                for (int i = 0; i < row_size - 1; i++)
+                {
+
+                    // write the updated data
+                    // into a new file 'reportcardnew.csv'
+                    // using fout
+                    fout << row[i] << ", ";
+                }
+
+                fout << row[row_size - 1] << "\n";
+            }
+        }
+        else
+        {
+            if (!fin.eof())
+            {
+                for (int i = 0; i < row_size - 1; i++)
+                {
+
+                    // writing other existing records
+                    // into the new file using fout.
+                    fout << row[i] << ", ";
+                }
+
+                // the last column data ends with a '\n'
+                fout << row[row_size - 1] << "\n";
+            }
+        }
+        if (fin.eof())
+            break;
+    }
+    if (cnt == 0)
+        cout << "Record not found\n";
+
+    fin.close();
+    fout.close();
+
+    // removing the existing file
+    remove("stockitems.csv");
+
+    // renaming the updated file with the existing file name
+    rename("stockitemsnew.csv", "stockitems.csv");
+}
+
+double findProduct(double ProductIDs)
+{
+
+    // File pointer
+    fstream fin;
+
+    // Open an existing file
+    fin.open("stockitems.csv", ios::in);
+
+//    cout << "s p " << searchedProduct.size() << endl;
+
+    // Read the Data from the file
+    // as String Vector
+
+    vector<string> row;
+    string line, word, temp;
+    int flag=0;
+
+    while (fin>>temp)    /// >>temp holds productId
+    {
+
+//        cout << "temp " << temp << endl;
+
+        row.clear();
+
+        getline(fin, line);
+
+        // used for breaking words
+        stringstream s(line);
+
+//        cout << "line " << line << endl;
+
+
+        while (getline(s, word, ','))
+        {
+            row.push_back(word);
+//            cout << word << endl;
+        }
+
+
+//             cout << "roll 0 " << row[0] << endl;
+        double lol = atof(temp.c_str()); ///*c_str is needed to convert string to const char*
+
+        if (ProductIDs == lol)
+        {
+            // Print the found data
+            cout << endl;
+            flag = 1;
+            double price = atof(row[3].c_str());
+            return price;
+        }
+    }
+
+
+    if (flag == 0)
+        cout << "Product not found\n";
+}
+
+
+double findCost(double ProductIDs)
+{
+
+    // File pointer
+    fstream fin;
+
+    // Open an existing file
+    fin.open("stockitems.csv", ios::in);
+
+//    cout << "s p " << searchedProduct.size() << endl;
+
+    // Read the Data from the file
+    // as String Vector
+
+    vector<string> row;
+    string line, word, temp;
+    int flag=0;
+
+    while (fin>>temp)    /// >>temp holds productId
+    {
+
+//        cout << "temp " << temp << endl;
+
+        row.clear();
+
+        getline(fin, line);
+
+        // used for breaking words
+        stringstream s(line);
+
+//        cout << "line " << line << endl;
+
+
+        while (getline(s, word, ','))
+        {
+            row.push_back(word);
+//            cout << word << endl;
+        }
+
+
+//             cout << "roll 0 " << row[0] << endl;
+        double lol = atof(temp.c_str()); ///*c_str is needed to convert string to const char*
+
+        if (ProductIDs == lol)
+        {
+            // Print the found data
+            cout << endl;
+            flag = 1;
+            double price = atof(row[2].c_str());
+            return price;
+        }
+    }
+
+
+    if (flag == 0)
+        cout << "Product not found\n";
+}
+
+
+void Stock::addNewItemsToStock()
+{
+    // file pointer
+    fstream fout;
+
+    // opens an existing csv file or creates a new file.
+    fout.open("stockitems.csv", ios::out | ios::app);
+
+
+    int n;
+    cout << "Enter the number of items to be added: ";
+    cin >> n;
+    cout << endl;
+
+
+    int productId, quantity;
+    double bprice, sprice;
+    string productName;
+
+    cout << "Enter the following information about the items to be added:\n "
+         << "Product ID, Product Name, Quantity, Buying price, Selling price"
+         << endl;
+
+
+
+    // Read the input
+    for (int i = 0; i < n; i++)
+    {
+
+        cin >> productId >> productName >> quantity >> bprice >> sprice;
+
+
+        // Insert the data to file
+        fout << productId << ", "
+             << productName << ", "
+             << quantity << ", "
+             << bprice << ", "
+             << sprice << ", "
+             << "\n";
+    }
+}
+
+void Stock::checkStock()
+{
+
+    // File pointer
+    fstream fin;
+
+    // Open an existing file
+    fin.open("stockitems.csv", ios::in);
+
+    // Get the roll number
+    // of which the data is required
+    double ProductIDs;
+    cout << "Enter the id of the stock product being searched: " << endl;
+    cout << "Product id: ";
+    cin >> ProductIDs;
+
+//    cout << "s p " << searchedProduct.size() << endl;
+
+    // Read the Data from the file
+    // as String Vector
+
+    vector<string> row;
+    string line, word, temp;
+    int flag=0;
+
+    while (fin>>temp)    /// >>temp holds productId
+    {
+
+//        cout << "temp " << temp << endl;
+
+        row.clear();
+
+        getline(fin, line);
+
+        // used for breaking words
+        stringstream s(line);
+
+//        cout << "line " << line << endl;
+
+
+        while (getline(s, word, ','))
+        {
+            row.push_back(word);
+//            cout << word << endl;
+        }
+
+
+//             cout << "roll 0 " << row[0] << endl;
+        double lol = atof(temp.c_str()); ///*c_str is needed to convert string to const char*
+
+        if (ProductIDs == lol)
+        {
+            // Print the found data
+            cout << endl;
+            flag = 1;
+            cout << "productName: " << row[0] << "\n";
+            cout << "quantity: " << row[1] << "\n";
+            cout << "Buying price: " << row[2] << "\n";
+            cout << "Selling price: " << row[3] << "\n";
+            break;
+        }
+    }
+
+
+    if (flag == 0)
+        cout << "Product not found\n";
+}
+
+
+void Stock::RefillStock()
+{
+
+    // File pointer
+    fstream fin, fout;
+
+    // Open an existing record
+    fin.open("stockitems.csv", ios::in);
+
+    // Create a new file to store updated data
+    fout.open("stockitemsnew.csv", ios::out);
+
+    string productID, roll1;
+    int sel;
+    int index;
+    double value;
+    string line, word;
+    vector<string> row;
+
+    // Get the roll number from the user
+    cout << "Enter the Product id "
+         << "of the record to be updated: ";
+    double productIDs;
+    cin >> productIDs;
+
+    // Get the data to be updated
+    cout << "Select the data "
+         << "to be updated:\n";
+
+    cout << "Press 2 to update product quantity " << endl;
+    cout << "Press 3 to update product buying price " << endl;
+    cout << "Press 4 to update product selling price " << endl;
+    cin >> sel;
+
+    if(sel!= 2 && sel!= 3 && sel!= 4)
+    {
+        cout << "Wrong choice.Enter again\n";
+        RefillStock();
+    }
+
+    // Get the new marks
+    cout << "Enter new data: ";
+    cin >> value; ///
+    int cnt=0;
+
+    // Traverse the file
+    while (!fin.eof())
+    {
+
+        row.clear();
+
+        getline(fin, line);
+
+//        cout << "line " << line << endl;
+        stringstream s(line);
+
+        while (getline(s, word, ','))
+        {
+            row.push_back(word);
+        }
+
+
+//             cout << "roll 0 " << row[0] << endl;
+        double lol = atof(row[0].c_str()); ///*c_str is needed to convert string to const char*
+//       cout << lol << endl;                       ///       previously (the function requires it)*/
+//    return 0;
+
+
+//        roll1 = atoi(row[0]);
+//        roll1 = row[0];
+
+        int row_size = row.size();
+//
+//        cout << "roll 1 " << roll[0] << endl;
+//        cout << "roll 1 " << roll1.size() << endl;
+//        cout << "Product ID " << productID << endl;
+//        cout << "Product ID " << productID.size() << endl;
+
+
+        if (lol == productIDs)
+        {
+            cnt = 1;
+            stringstream convert;
+
+            // sending a number as a stream into output string
+            convert << value;
+
+            // the str() converts number into string
+            row[sel] = convert.str();
+
+            if (!fin.eof())
+            {
+                for (int i = 0; i < row_size - 1; i++)
+                {
+
+                    // write the updated data
+                    // into a new file 'reportcardnew.csv'
+                    // using fout
+                    fout << row[i] << ", ";
+                }
+
+                fout << row[row_size - 1] << "\n";
+            }
+        }
+        else
+        {
+            if (!fin.eof())
+            {
+                for (int i = 0; i < row_size - 1; i++)
+                {
+
+                    // writing other existing records
+                    // into the new file using fout.
+                    fout << row[i] << ", ";
+                }
+
+                // the last column data ends with a '\n'
+                fout << row[row_size - 1] << "\n";
+            }
+        }
+        if (fin.eof())
+            break;
+    }
+    if (cnt == 0)
+        cout << "Record not found\n";
+
+    fin.close();
+    fout.close();
+
+    // removing the existing file
+    remove("stockitems.csv");
+
+    // renaming the updated file with the existing file name
+    rename("stockitemsnew.csv", "stockitems.csv");
+}
+
+
+
+
+
+//class Sales
+//{
+//    double amount=0; profit=0, expenditure=0;
+//public:
+//    double calculateSales();
+//};
+//
+//double Sales::calculateSales();
+//{
+//
+//};
+
+//
+//class Customer
+//{
+//    int customer
+//};
+
+
+///TRANSACTION CLASS FUNCTIONS
+class Transactions
+{
+
+    double customerID, productIDs, profit=0, price=0, quantity;
+
+public:
+    static int numberOfTransactions;
+    void EntercustomerID()
+    {
+        cout << "Enter the customer ID" << endl;
+        cin >> customerID;
+    }
+    void performTransaction()
+    {
+
+        cout << "Enter the ProductID and Quantity of Product being purchased: " << endl;
+        cin >> productIDs >> quantity;
+        price = findProduct(productIDs);
+
+        price *= quantity;
+
+//////        cout << price << endl;
+
+        profit += ((price*quantity) - (findCost(productIDs)*quantity));
+
+        decreaseStock(productIDs, quantity);
+
+        ///numberOfTransactions++;
+
+    }
+
+
+
+    double putAmount()
+    {
+        return price;
+    }
+
+    double putProfit()
+    {
+        return profit;
+    }
+
+    void OutputBill()
+    {
+        cout << "Please pay Tk. " << price << endl;
+    }
+
+    void showTransactionNumber()
+    {
+        cout << "Number of transactions are " << numberOfTransactions << endl;
+    }
+
+    void operator++ ();
+
+
+};
+//
+int Transactions::numberOfTransactions;
+
+
+void Transactions:: operator++()
+{
+    numberOfTransactions = ++numberOfTransactions;
+}
+
+
+
+template <class D>
+D CheckProfitAmount (D b)
+{
+    return (b > 0 ? 1 : 0);
+}
+
+
+
+class Sales /// : public Transactions
+{
+    double aamount, pprofit;
+public:
+    double CalculateSales(Transactions trans)
+    {
+
+        trans.showTransactionNumber();
+//        showTransactionNumber();
+
+        aamount=trans.putAmount();
+
+        pprofit=trans.putProfit();
+
+
+//         aamount=putAmount();
+//        pprofit=putProfit();
+
+        cout << "Total sales: " << aamount << endl;
+        cout << "Total profit: " << pprofit << endl;
+
+        double k = CheckProfitAmount(pprofit);
+
+        if(k)
+        {
+            cout << "We earned money" << endl;
+        }
+        else
+        {
+            cout << "We had a loss " << endl;
+        }
+
+
+    }
+
+};
+
+
+
+
+
+
+class Admin : public Stock, public Sales ///: private Cashier
+
+{
+
+    string un = "admin", pw="12345";
+    vector < pair < string, string> > cashierInfo;  /// First element of the pair is Cashier username, second element is Cashier password
+
+public:
+    int checkAdminLogin();
+    int checkCashierLogin();
+
+    void addDefaultcashier()
+    {
+        cashierInfo.push_back({"default", "default"});
+    }
+
+    void addCashier();
+    void deleteCashier();
+    void showCashiers();
+
+};
+
+///ADMIN CLASS FUNCTIONS
+void Admin::addCashier()
+{
+    string username, password;
+    cout << "Enter Cashier Username: ";
+    cin >> username;
+    cout << "Enter Cashier Password: ";
+    cin >> password;
+    cashierInfo.push_back({username, password});
+
+}
+
+void Admin::showCashiers()
+{
+    cout << endl;
+    cout << "The cashiers are: " << endl;
+    for(int i=0; i<cashierInfo.size(); i++)
+        cout << cashierInfo[i].first << " " << cashierInfo[i].second << endl;
+}
+
+void Admin::deleteCashier()
+{
+    cout << "Enter username of cashier to be deleted: ";
+    string s;
+    cin >> s;
+    for(int i=0; i<cashierInfo.size(); i++)
+    {
+        if(s==cashierInfo[i].first)
+        {
+            cashierInfo.erase(cashierInfo.begin()+i);
+            break;
+        }
+    }
+    cout << "Cashier " << s << " " << "deleted " << endl;
+}
+
+int Admin::checkAdminLogin()
+{
+    string username, password;
+
+    cout << "Enter Admin Username: ";
+    cin >> username;
+    cout << "Enter Admin Password: ";
+    cin >> password;
+    cout << endl;
+    if(un==username && pw==password)
+        return 1;
+    else
+    {
+        return 0;
+        cout << "You did not enter a valid Admin username or password\n " << endl;
+    }
+}
+
+int Admin::checkCashierLogin()
+{
+    string username, password;
+    cout << "Enter Cashier Username: ";
+    cin >> username;
+    cout << "Enter Cashier Password: ";
+    cin >> password;
+    cout << endl;
+
+    int flag=0;
+    for(int i=0; i<cashierInfo.size(); i++)
+    {
+        if(cashierInfo[i].first==username && cashierInfo[i].second==password)
+        {
+            cout << "                        Welcome Cashier " << username << endl;
+            return 2;
+        }
+        cout << "You did not enter a valid Cashier username or password\n " << endl;
+//    return 0;
+    }
+}
+
+int main()
+{
+    Admin admin;
+//    Cashier cashier;
+//    Sales sales;
+    Stock stock;
+    Transactions trans;
+    Sales sales;
+
+    Sales *salesPointer;
+    salesPointer = &admin;
+
+
+
+//    Transactions *transpointer;
+
+    admin.addDefaultcashier(); /// username and password : default
+
+    while(1)
+    {
+        playIntro();
+        cout << "Press 1 to Login as Admin" << endl;
+        cout << "Press 2 to Login as Cashier" << endl;
+        cout << endl;
+
+        int n;
+        cin >> n;
+        if(n==1)
+        {
+            if(admin.checkAdminLogin())
+            {
+
+                cout << "                                Welcome Admin\n" <<  endl;
+//                cout << "Access to admin class granted\n " << endl;
+
+                while(1)
+                {
+                    cout << endl;
+                    cout << "Press respective number to perform the following action: " << endl;
+
+                    cout << "1. Add cashier" << endl;
+                    cout << "2. Delete cashier" << endl;
+                    cout << "3. Check Stock" << endl;
+                    cout << "4. Refill Stock" << endl;
+                    cout << "5. Add new items to stock" << endl;
+                    cout << "6. Calculate Sales " << endl;
+                    cout << "0. to exit" << endl;
+
+                    int t;
+                    cin >> t;
+
+                    if(t==0)
+                        goto exit;
+                    if(t==1)
+                        admin.addCashier();
+                    if(t==2)
+                    {
+                        admin.showCashiers();
+                        cout << endl;
+                        admin.deleteCashier();
+                        admin.showCashiers();
+
+                    }
+                    if(t==3)
+                        admin.checkStock();
+                    if(t==4)
+                        admin.RefillStock();
+                    if(t==5)
+                        admin.addNewItemsToStock();
+                    if(t==6)
+                    {
+
+//                        cout << "num of transactions" << trans.numberOfTransactions << endl;
+
+//                        admin.CalculateSales();
+                        salesPointer->CalculateSales(trans);
+                    }
+
+
+//                    admin.showCashiers();
+                }
+
+
+            }
+            else
+                break;
+        }
+
+
+        if(n==2)
+        {
+            if(admin.checkCashierLogin()==2)
+            {
+
+                while(1)
+                {
+                    cout << endl;
+                    cout << "Press respective number to perform the following action: " << endl;
+
+                    cout << "1. Perform Transaction" << endl;
+                    cout << "2. Calculate Bonus" << endl;
+                    cout << "3. Output Bill" << endl;
+                    cout << "0. to exit" << endl;
+
+                    int t;
+                    cin >> t;
+
+                    if(t==0)
+                        goto exit;
+                    if(t==1)
+                    {
+                        trans.EntercustomerID();
+                        cout << "Enter the number of products to be bought " << endl;
+                        int x;
+                        cin >> x;
+
+                        while(x--)
+                        {
+                            ++trans;
+
+                            trans.performTransaction();
+
+//                            cout << trans.numberOfTransactions << endl;
+                        }
+                    }
+                    if(t==3)
+                    {
+                        trans.OutputBill();
+                    }
+
+                }
+
+            }
+            else
+                break;
+        }
+
+
+
+exit:
+        cout << "PROGRAM IS RESTARTING..." << endl;
+        cout << endl;
+    }
+    return 0;
+}
+
